@@ -13,7 +13,7 @@ allowed_files = c("hw2.Rmd",
 files = dir()
 disallowed_files = !map_lgl(files, ~ any(str_detect(., allowed_files)))
 
-if (length(disallowed_files != 0))
+if (any(disallowed_files))
 {
   cat("Disallowed files found:\n")
   cat("  (remove the following files from your repo)\n\n")
