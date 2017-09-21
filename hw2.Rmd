@@ -5,6 +5,11 @@ Homework 2 - [Your team name here]
 
 ```{r message = FALSE}
 library(dplyr)
+library(purrr)
+library(tibble)
+library(repurrrsive)
+library(stringr)
+
 load("lego_sales.RData")
 ```
 
@@ -14,6 +19,32 @@ load("lego_sales.RData")
 <!-- Covert the `sales` object into a tidy data frame. Be sure to include a write up of your methods. -->
 
 ```{r}
+d=data_frame(
+first_name=map_chr(sales,"first_name"),
+last_name=map_chr(sales,"last_name"),
+gender=map_chr(sales,"gender"),
+age=map_dbl(sales,"age")
+)
+
+num_purchases=rep(0,250)
+for(i in 1:250)
+{
+  temp=unlist(sales[i])
+  nam=temp[names(temp)=="purchases.Number"]
+  num_purchases[i]=length(nam)
+}
+
+dd=as.matrix(d)
+ii=0;
+final<-matrix(nrow=620,ncol=4)
+for (j in 1:250)
+{
+  for(e in 1:num_purchases[j])
+  {
+    final[ii+e,]=dd[j,]
+  }
+  ii=ii+num_purchases[j]
+}
 ```
 
 
