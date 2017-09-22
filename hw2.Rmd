@@ -25,6 +25,19 @@ last_name=map_chr(sales,"last_name"),
 gender=map_chr(sales,"gender"),
 age=map_dbl(sales,"age")
 )
+colnames(final)=cbind("fname","lname","gender","age")
+#list_cols = map(sales, ~ map_int(., length) )  %>% 
+   #  map(~ which(. > 1)) %>% 
+  #   unlist() %>% 
+  #   names() %>% 
+  #   unique()
+#d=map_df(
+#     sales[1:3], 
+#     function(row)
+#     {
+#         map_if(row, function(x) length(x) > 1, list)
+#     }
+ #) %>% View()
 
 num_purchases=rep(0,250)
 for(i in 1:250)
@@ -45,6 +58,33 @@ for (j in 1:250)
   }
   ii=ii+num_purchases[j]
 }
+
+half2<-matrix(data=NA, nrow=sum(num_purchases),ncol=10)
+iii=0
+for (w in 1:250)
+{
+  temp=unlist(sales[w])
+  for (ww in 1:num_purchases[w])
+  {
+    name1=temp[names(temp)=="purchases.SetID"][ww]
+    name2=temp[names(temp)=="purchases.Number"][ww]
+    name3=temp[names(temp)=="purchases.Theme"][ww]
+    name4=temp[names(temp)=="purchases.Subtheme"][ww]
+    name5=temp[names(temp)=="purchases.Year"][ww]
+    name6=temp[names(temp)=="purchases.Name"][ww]
+    name7=temp[names(temp)=="purchases.Pieces"][ww]
+    name8=temp[names(temp)=="purchases.USPrice"][ww]
+    name9=temp[names(temp)=="purchases.ImageURL"][ww]
+    name10=temp[names(temp)=="purchases.Quantity"][ww]
+    tempp=cbind(name1,name2,name3,name4,name5,name6,name7,name8,name9,name10)
+    half2[iii+ww,]=tempp
+  }
+  iii=iii+num_purchases[w]
+}
+colnames(half2)=cbind("purchases.SetID","number","theme","subtheme","year","name","pieces","usprice","imageurl","quantity")
+kkk=cbind(final,half2)
+kkkk=as.data.frame(kkk)
+  
 ```
 
 
