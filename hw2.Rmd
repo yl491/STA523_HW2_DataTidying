@@ -87,6 +87,8 @@ lego_sales=as.data.frame(kkk)
 2. What are the five most popular lego sets based on these data?
 
 ```{r}
+sort(table(lego_sales$purchases.SetID),decreasing = T)[1:5]
+#Yunxuan
 ```
 
 3. Which five customers have spent the most money so far and how much have they spent?
@@ -112,6 +114,13 @@ lego_sales=as.data.frame(kkk)
 7. How many total pieces have been purchased from lego by these customers?
 
 ```{r}
+total_pieces<-sum(na.omit(as.numeric(as.character(lego_sales$pieces))))
+
+ttp<-as.character(lego_sales$pieces)%>%
+  as.numeric()%>%
+  na.omit()%>%
+  sum()
+#by yunxuan
 ```
 
 8. Which area code has spent the most money on legos?
