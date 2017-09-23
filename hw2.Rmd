@@ -45,6 +45,14 @@ for(i in 1:250)
 
 final = d %>%slice(rep(1:n(), num_purchases))
 
+#### try using this instead of the for loop to generate num_purchases
+
+test <- map(sales, "purchases") %>% map_int(length)
+all(num_purchases == test) #shows equivalence between two vectors
+
+#### J.C.
+
+
 half2<-matrix(data=NA, nrow=sum(num_purchases),ncol=10)
 iii=0
 for (w in 1:250)
@@ -68,8 +76,31 @@ for (w in 1:250)
   iii=iii+num_purchases[w]
 }
 colnames(half2)=cbind("purchases.SetID","number","theme","subtheme","year","name","pieces","usprice","imageurl","quantity")
+
+#### thoughts on using this code in lieu of the above
+
+cols = map(sales,"purchases") %>% map(~map_int(.,length)) %>% unlist() %>% max()
+
+half2_jc = matrix(data=NA, nrow=sum(num_purchases),ncol=cols)
+
+iii = 0
+
+for (i in 1:length(sales)){
+  for (j in 1:num_purchases[i]){
+    half2_jc[iii+j,] <- map(sales[i],"purchases")[[1]][[j]] %>% unlist()
+  }
+  iii = iii + num_purchases[i]
+}
+colnames(half2_jc) = map(sales[1],"purchases")[[1]][[1]] %>% names()
+
+#test for equivalence of two methods
+
+all(na.omit(half2_jc) == na.omit(half2))
+
+######### J.C.
+
 kkk=cbind(final,half2)
-lego_sales=as.data.frame(kkk)
+lego_sales=as.data.frame(kkk) #thoughts on as_tibble() instead of as.data.frame ? - J.C.
   
 ```
 
@@ -82,6 +113,7 @@ lego_sales=as.data.frame(kkk)
 1. What was the most common first name of purchasers? Last name?
 
 ```{r}
+
 ```
 
 2. What are the five most popular lego sets based on these data?
