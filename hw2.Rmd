@@ -100,7 +100,7 @@ all(na.omit(half2_jc) == na.omit(half2))
 ######### J.C.
 
 kkk=cbind(final,half2)
-lego_sales=as.data.frame(kkk) #thoughts on as_tibble() instead of as.data.frame ? - J.C.
+lego_sales=as_tibble(kkk) #thoughts on as_tibble() instead of as.data.frame ? - J.C.
   
 ```
 
@@ -113,7 +113,13 @@ lego_sales=as.data.frame(kkk) #thoughts on as_tibble() instead of as.data.frame 
 1. What was the most common first name of purchasers? Last name?
 
 ```{r}
+#first name
+lego_sales %>% select(first_name:last_name)%>%unique()%>%group_by(first_name)%>%summarize(number = n())%>%filter(number == max(number))
 
+#last name
+lego_sales %>% select(first_name:last_name)%>%unique()%>%group_by(last_name)%>%summarize(number = n())%>%filter(number == max(number))
+
+# J.C. - any thoughts on making these more efficient?
 ```
 
 2. What are the five most popular lego sets based on these data?
@@ -121,16 +127,26 @@ lego_sales=as.data.frame(kkk) #thoughts on as_tibble() instead of as.data.frame 
 ```{r}
 sort(table(lego_sales$purchases.SetID),decreasing = T)[1:5]
 #Yunxuan
+
+lego_sales%>%mutate(quantity = as.integer(quantity))%>%select(name,quantity)%>%group_by(name)%>%summarize(total = sum(quantity))%>%arrange(desc(total))%>%slice(1:5)
+
+#J.C. - takes into account quantity of each unit purchased
 ```
 
 3. Which five customers have spent the most money so far and how much have they spent?
 
 ```{r}
+lego_sales %>% mutate(quantity = as.integer(quantity), usprice = as.numeric(as.character(usprice)), receipts = quantity*usprice) %>% select(first_name,last_name,receipts)%>%group_by(first_name,last_name) %>% summarize(total_receipts = sum(receipts))%>%arrange(desc(total_receipts))%>%ungroup()%>%slice(1:5)
+
+#J.C. - again, taking into account quantity of units purchased per transaction
 ```
 
 4. Which lego theme has made the most money for lego?
 
 ```{r}
+ lego_sales %>% mutate(quantity = as.integer(quantity), usprice = as.numeric(as.character(usprice)), receipts = quantity*usprice) %>% select(theme,receipts)%>%group_by(theme)%>%summarize(total = sum(receipts))%>%filter(total == max(total))
+
+#J.C.
 ```
 
 5. Do men or women buy more lego sets (per person) on average?
