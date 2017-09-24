@@ -144,7 +144,7 @@ lego_sales %>% mutate(quantity = as.integer(quantity), usprice = as.numeric(as.c
 4. Which lego theme has made the most money for lego?
 
 ```{r}
- lego_sales %>% mutate(quantity = as.integer(quantity), usprice = as.numeric(as.character(usprice)), receipts = quantity*usprice) %>% select(theme,receipts)%>%group_by(theme)%>%summarize(total = sum(receipts))%>%filter(total == max(total))
+lego_sales %>% mutate(quantity = as.integer(quantity), usprice = as.numeric(as.character(usprice)), receipts = quantity*usprice) %>% select(theme,receipts)%>%group_by(theme)%>%summarize(total = sum(receipts))%>%filter(total == max(total))
 
 #J.C.
 ```
