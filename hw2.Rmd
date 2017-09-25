@@ -141,8 +141,8 @@ lego_sales%>%
   select(name,quantity)%>%
   group_by(name)%>%
   summarize(total = sum(quantity))%>%
-  arrange(desc(total))%>%
-  slice(1:5)
+  arrange(desc(total)) %>%
+  filter(total >= 9)
 
 #J.C. - takes into account quantity of each unit purchased
 ```
@@ -151,12 +151,12 @@ lego_sales%>%
 
 ```{r}
 lego_sales %>% 
-  mutate(quantity = as.integer(quantity), usprice = as.numeric(as.character(usprice)), receipts = quantity*usprice) %>% 
-  select(first_name,last_name,receipts)%>%
-  group_by(first_name,last_name) %>% 
+  mutate(quantity = as.integer(quantity), usprice = as.numeric(as.character(usprice)), receipts = quantity*usprice, full_name = paste(first_name,last_name)) %>% 
+  select(full_name,receipts)%>%
+  group_by(full_name) %>% 
   summarize(total_receipts = sum(receipts))%>%
   arrange(desc(total_receipts))%>%
-  ungroup()%>%slice(1:5)
+  slice(1:5)
 
 #J.C. - again, taking into account quantity of units purchased per transaction
 ```
@@ -189,12 +189,11 @@ lego_sales %>% mutate(quantity = as.integer(quantity)) %>%
 6. What are the five most popular hobbies of lego purchasers?
 
 ```{r}
-t = lego_sales %>% select(first_name,last_name,hobbies)%>%unique()
+t1 = lego_sales %>% select(hobbies) %>% unlist() %>% sort()
+t2 = sapply(unique(t1), function(name){sum(t1 == name)}) %>% sort(.,decreasing = TRUE)
+hobbies = t2[1:5]
 
-t2 = t %>% slice(rep(1:n(),map(hobbies,length)))
-
-
-#any thoughts on how to proceed here? - J.C.
+#J.C. - hopefully this works
 ```
 
 7. How many total pieces have been purchased from lego by these customers?
