@@ -24,7 +24,6 @@ list_cols = map(sales, ~ map_int(., length) )  %>%
      unlist() %>% 
      names() %>% 
      unique()
-
 d=map_df(
      sales, 
      function(row)
@@ -34,73 +33,29 @@ d=map_df(
  )
 
 d$purchases <-NULL
-
-num_purchases=rep(0,250)
-for(i in 1:250)
-{
-  temp=unlist(sales[i])
-  nam=temp[names(temp)=="purchases.Number"]
-  num_purchases[i]=length(nam)
-}
-
+num_purchases <- map(sales, "purchases") %>% map_int(length)
 final = d %>%slice(rep(1:n(), num_purchases))
 
-#### try using this instead of the for loop to generate num_purchases
-
-test <- map(sales, "purchases") %>% map_int(length)
-all(num_purchases == test) #shows equivalence between two vectors
-
-#### J.C.
-
-
-half2<-matrix(data=NA, nrow=sum(num_purchases),ncol=10)
-iii=0
-for (w in 1:250)
-{
-  temp=unlist(sales[w])
-  for (ww in 1:num_purchases[w])
-  {
-    name1=temp[names(temp)=="purchases.SetID"][ww]
-    name2=temp[names(temp)=="purchases.Number"][ww]
-    name3=temp[names(temp)=="purchases.Theme"][ww]
-    name4=temp[names(temp)=="purchases.Subtheme"][ww]
-    name5=temp[names(temp)=="purchases.Year"][ww]
-    name6=temp[names(temp)=="purchases.Name"][ww]
-    name7=temp[names(temp)=="purchases.Pieces"][ww]
-    name8=temp[names(temp)=="purchases.USPrice"][ww]
-    name9=temp[names(temp)=="purchases.ImageURL"][ww]
-    name10=temp[names(temp)=="purchases.Quantity"][ww]
-    tempp=cbind(name1,name2,name3,name4,name5,name6,name7,name8,name9,name10)
-    half2[iii+ww,]=tempp
-  }
-  iii=iii+num_purchases[w]
-}
-colnames(half2)=cbind("purchases.SetID","number","theme","subtheme","year","name","pieces","usprice","imageurl","quantity")
-
-#### thoughts on using this code in lieu of the above
-
 cols = map(sales,"purchases") %>% map(~map_int(.,length)) %>% unlist() %>% max()
-
-half2_jc = matrix(data=NA, nrow=sum(num_purchases),ncol=cols)
+half2<-matrix(data=NA, nrow=sum(num_purchases),ncol=cols)
 
 iii = 0
 
 for (i in 1:length(sales)){
   for (j in 1:num_purchases[i]){
-    half2_jc[iii+j,] <- map(sales[i],"purchases")[[1]][[j]] %>% unlist()
+    half2[iii+j,] <- map(sales[i],"purchases")[[1]][[j]] %>% unlist()
   }
   iii = iii + num_purchases[i]
 }
-colnames(half2_jc) = map(sales[1],"purchases")[[1]][[1]] %>% names()
-
-#test for equivalence of two methods
-
-all(na.omit(half2_jc) == na.omit(half2))
-
-######### J.C.
+#write up here explaning duplicate purchases of same customer#########
+colnames(half2) = map(sales[1],"purchases")[[1]][[1]] %>% names()
 
 kkk=cbind(final,half2)
-lego_sales=as_tibble(kkk) #thoughts on as_tibble() instead of as.data.frame ? - J.C.
+lego_sales=as_tibble(kkk) 
+
+lego_sales$Quantity=as.integer(lego_sales$Quantity)
+lego_sales$Pieces=as.numeric(as.character(lego_sales$Pieces))
+lego_sales$USPrice=as.numeric(as.character(lego_sales$USPrice))
   
 ```
 
@@ -127,103 +82,86 @@ lego_sales %>% select(first_name:last_name)%>%
   summarize(number = n())%>%
   filter(number == max(number))
 
-# J.C. - any thoughts on making these more efficient?
 ```
 
 2. What are the five most popular lego sets based on these data?
 
 ```{r}
-sort(table(lego_sales$purchases.SetID),decreasing = T)[1:5]
-#Yunxuan
-
 lego_sales%>%
-  mutate(quantity = as.integer(quantity))%>%
-  select(name,quantity)%>%
-  group_by(name)%>%
-  summarize(total = sum(quantity))%>%
+  
+  select(Name,Quantity)%>%
+  group_by(Name)%>%
+  summarize(total = sum(Quantity))%>%
   arrange(desc(total)) %>%
   filter(total >= 9)
 
-#J.C. - takes into account quantity of each unit purchased
 ```
 
 3. Which five customers have spent the most money so far and how much have they spent?
 
 ```{r}
 lego_sales %>% 
-  mutate(quantity = as.integer(quantity), usprice = as.numeric(as.character(usprice)), receipts = quantity*usprice, full_name = paste(first_name,last_name)) %>% 
+  mutate(receipts = Quantity*USPrice, full_name = paste(first_name,last_name)) %>% 
   select(full_name,receipts)%>%
   group_by(full_name) %>% 
   summarize(total_receipts = sum(receipts))%>%
   arrange(desc(total_receipts))%>%
   slice(1:5)
-
-#J.C. - again, taking into account quantity of units purchased per transaction
 ```
 
 4. Which lego theme has made the most money for lego?
 
 ```{r}
 lego_sales %>% 
-  mutate(quantity = as.integer(quantity), usprice = as.numeric(as.character(usprice)), receipts = quantity*usprice) %>% 
-  select(theme,receipts)%>%
-  group_by(theme)%>%
+  mutate (receipts = Quantity*USPrice) %>% 
+  select(Theme,receipts)%>%
+  group_by(Theme)%>%
   summarize(total = sum(receipts))%>%
   filter(total == max(total))
 
-#J.C.
 ```
 
 5. Do men or women buy more lego sets (per person) on average?
 
 ```{r}
-lego_sales %>% mutate(quantity = as.integer(quantity)) %>%
-  select(gender:last_name,quantity)%>%
+lego_sales %>%
+  select(gender,Quantity)%>%
   group_by(gender) %>% 
-  summarize( avg_sets = mean(quantity))%>%
-  filter(avg_sets == max(avg_sets))
+  summarize(avg_sets = mean(Quantity))
 
-#J.C. - 'filter()' may not be needed, same with ":last_name" in 'select()'
 ```
-
+\
+Answer: Male.\
 6. What are the five most popular hobbies of lego purchasers?
 
 ```{r}
 t1 = lego_sales %>% select(hobbies) %>% unlist() %>% sort()
-t2 = sapply(unique(t1), function(name){sum(t1 == name)}) %>% sort(.,decreasing = TRUE)
+t2 = sapply(unique(t1), function(x){sum(t1 == x)}) %>% sort(.,decreasing = TRUE)
 hobbies = t2[1:5]
+hobbies
 
-#J.C. - hopefully this works
 ```
 
 7. How many total pieces have been purchased from lego by these customers?
 
 ```{r}
-total_pieces<-sum(na.omit(as.numeric(as.character(lego_sales$pieces))))
-
-ttp<-as.character(lego_sales$pieces)%>%
-  as.numeric()%>%
-  na.omit()%>%
-  sum()
-#by yunxuan
 
 lego_sales %>% 
-  mutate(quantity = as.integer(quantity), pieces = as.numeric(as.character(pieces)), t_pieces = quantity*pieces) %>% 
+  mutate(t_pieces = Quantity*Pieces) %>% 
   select(t_pieces) %>% 
   summarize(total = sum(na.omit(t_pieces)))
 
-#J.C. - takes into account quantity purchased per transaction
 ```
 
 8. Which area code has spent the most money on legos?
 
 ```{r}
-lego_sales %>% select(phone_number, usprice, quantity) %>% 
-  mutate(area_code = substr(phone_number,1,3), quantity = as.integer(quantity), usprice = as.numeric(as.character(usprice)), receipts = usprice*quantity) %>% 
+lego_sales %>% 
+  mutate(area_code = substr(phone_number,1,3), receipts = USPrice*Quantity) %>% 
+  select(area_code,receipts)%>%
   group_by(area_code) %>%
   summarize(total_area = sum(receipts)) %>% 
   filter(!is.na(area_code)) %>% 
   filter(total_area == max(total_area))
 
-#J.C. - probably omit/alter the 'select()' at the beginning
 ```
