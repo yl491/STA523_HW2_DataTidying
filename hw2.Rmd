@@ -1,4 +1,4 @@
-Homework 2 - [Your team name here]
+Homework 2 - [Team 09]
 ========================================================
 
 ### Task 0 - Load the data
@@ -16,7 +16,12 @@ load("lego_sales.RData")
 
 ### Task 1 - Tidying the data
 
-<!-- Covert the `sales` object into a tidy data frame. Be sure to include a write up of your methods. -->
+Write up: 
+1. We first create a dataframe[D] that contains all customers' information (excluding purchases-related ones). \
+2. For each customer, we extract out the length of purchases, and sum thoses lengths up to be the number of rows in the final dataset[NUM_PURCHASES]. We then create a matrix[FINAL] that replicates each row of [D] with #s of duplicated purchases.\
+3. In dealing with duplicate purchases, we choose to put each purchase into a separate row. 
+We create a matrix[HALF2] with [NUM_PURCHASES] as #s of row, the sum of purchases as #s of column. We loop through each customer's purchases to extract information and put those information into a row in M1.\
+4. We combine [FINAL] and [HALF2], and get the clean dataset.\
 
 ```{r}
 list_cols = map(sales, ~ map_int(., length) )  %>% 
