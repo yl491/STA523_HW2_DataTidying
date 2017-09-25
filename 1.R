@@ -27,3 +27,12 @@ for(i in 1:250)
   nam=temp[names(temp)=="purchases.Number"]
   num_purchases=length(nam)
 }
+
+
+map_df(
+  sales[1:3], 
+  function(row)
+  {
+    map_if(row, function(x) length(x) > 1, list)
+  }
+) %>% View()
