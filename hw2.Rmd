@@ -4,7 +4,6 @@ Homework 2 - [Team 09]
 ### Task 0 - Load the data
 
 ```{r message = FALSE}
-install.packages("repurrrsive")
 library(dplyr)
 library(purrr)
 library(tibble)
@@ -53,7 +52,7 @@ for (i in 1:length(sales)){
   }
   iii = iii + num_purchases[i]
 }
-#write up here explaning duplicate purchases of same customer#########
+
 colnames(half2) = map(sales[1],"purchases")[[1]][[1]] %>% names()
 
 kkk=cbind(final,half2)
@@ -90,6 +89,10 @@ lego_sales %>% select(first_name:last_name)%>%
 
 ```
 
+The most common first names are Jacob and Michael, and the most common last names are Brown, Scott, Smith and Williams. We first pick names(first name/last name) from the data frame, make every name unique, and pick the first name/last name that appear the most times.
+
+
+
 2. What are the five most popular lego sets based on these data?
 
 ```{r}
@@ -103,6 +106,10 @@ lego_sales%>%
 
 ```
 
+From the tibble above we can see the five most popular sets. We pick names of sets and quatities of sold sets from the data frame, and compare the total quantities of sold sets by set names. 
+
+
+
 3. Which five customers have spent the most money so far and how much have they spent?
 
 ```{r}
@@ -114,6 +121,10 @@ lego_sales %>%
   arrange(desc(total_receipts))%>%
   slice(1:5)
 ```
+
+The tibble above shows the five customers have spent the most money so far. To find which customers have spent the most money, we first calculate the total money each customer spent on lego and arrange them into a list in descending order by how much money they spend. The top 5 of the list will be the five customers who spent the most money so far.
+
+
 
 4. Which lego theme has made the most money for lego?
 
@@ -127,6 +138,10 @@ lego_sales %>%
 
 ```
 
+Star Wars made the most money for lego. We calculate the total money moade by each theme and rank them by the money they made.
+
+
+
 5. Do men or women buy more lego sets (per person) on average?
 
 ```{r}
@@ -136,8 +151,11 @@ lego_sales %>%
   summarize(avg_sets = mean(Quantity))
 
 ```
-\
-Answer: Male.\
+
+Male buy more lego sets on average. We calculate the average money spent by gender and compare the two.
+
+
+
 6. What are the five most popular hobbies of lego purchasers?
 
 ```{r}
@@ -147,6 +165,10 @@ hobbies = t2[1:5]
 hobbies
 
 ```
+
+We unlist the variables in column hobbies and count the number of appearance for each hobby. From the result above we can see the five most popular hobbies of lego purchasers.
+
+
 
 7. How many total pieces have been purchased from lego by these customers?
 
@@ -158,6 +180,10 @@ lego_sales %>%
   summarize(total = sum(na.omit(t_pieces)))
 
 ```
+
+To calculate the total pieces, we first caculate the total pieces for each customer, then calculate the sum of total pieces for each customer.
+
+
 
 8. Which area code has spent the most money on legos?
 
@@ -171,3 +197,7 @@ lego_sales %>%
   filter(total_area == max(total_area))
 
 ```
+
+We first create a list of area code by choosing the first three numbers of the phone number. We then calculate the total money spent by each area code, and find out the area code that has spent the most money on legos.
+
+
