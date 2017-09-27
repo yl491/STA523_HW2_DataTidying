@@ -9,11 +9,9 @@ Homework 2 - [Team 09]
 ### Task 0 - Load the data
 
 ```{r message = FALSE}
-#install.packages("repurrrsive")
 library(dplyr)
 library(purrr)
 library(tibble)
-#library(repurrrsive)
 library(stringr)
 library(knitr)
 
@@ -179,9 +177,13 @@ Male buy more lego sets on average. We calculate the average money spent by gend
 
 ```{r}
 t1 = lego_sales %>% 
-  select(hobbies) %>% 
+  mutate(full_name = paste(first_name,last_name))%>%
+  select(hobbies,full_name) %>% 
+  unique()%>%
+  group_by(full_name)%>%
   unlist() %>% 
   sort()
+
 
 t2 = sapply(unique(t1), function(x){sum(t1 == x)}) %>% 
   sort(.,decreasing = TRUE)
