@@ -15,6 +15,7 @@ library(purrr)
 library(tibble)
 library(repurrrsive)
 library(stringr)
+library(knitr)
 
 load("lego_sales.RData")
 ```
@@ -35,7 +36,7 @@ list_cols = map(sales, ~ map_int(., length) )  %>%
      unlist() %>% 
      names() %>% 
      unique()
-d=map_df(
+d = map_df(
      sales, 
      function(row)
      {
@@ -43,31 +44,32 @@ d=map_df(
      }
  )
 
-d$purchases <-NULL
-num_purchases <- map(sales, "purchases") %>% map_int(length)
+d$purchases = NULL
+num_purchases = map(sales, "purchases") %>% map_int(length)
 final = d %>%slice(rep(1:n(), num_purchases))
 
-cols = map(sales,"purchases") %>% map(~map_int(.,length)) %>% unlist() %>% max()
-half2<-matrix(data=NA, nrow=sum(num_purchases),ncol=cols)
+cols = map(sales, "purchases") %>% map(~map_int(.,length)) %>% unlist() %>% max()
+half2 = matrix(data = NA, nrow = sum(num_purchases), ncol = cols)
 
 iii = 0
 
 for (i in 1:length(sales)){
   for (j in 1:num_purchases[i]){
-    half2[iii+j,] <- map(sales[i],"purchases")[[1]][[j]] %>% unlist()
+    half2[iii+j,] = map(sales[i],"purchases")[[1]][[j]] %>% unlist()
   }
   iii = iii + num_purchases[i]
 }
 
-colnames(half2) = map(sales[1],"purchases")[[1]][[1]] %>% names()
+colnames(half2) = map(sales[1], "purchases")[[1]][[1]] %>% names()
 
-kkk=cbind(final,half2)
-lego_sales=as_tibble(kkk) 
+kkk = cbind(final, half2)
+lego_sales = as_tibble(kkk) 
 
-lego_sales$Quantity=as.integer(lego_sales$Quantity)
-lego_sales$Pieces=as.numeric(as.character(lego_sales$Pieces))
-lego_sales$USPrice=as.numeric(as.character(lego_sales$USPrice))
-  
+lego_sales$Quantity = as.integer(lego_sales$Quantity)
+lego_sales$Pieces = as.numeric(as.character(lego_sales$Pieces))
+lego_sales$USPrice = as.numeric(as.character(lego_sales$USPrice))
+
+lego_sales
 ```
 
 
@@ -80,101 +82,120 @@ lego_sales$USPrice=as.numeric(as.character(lego_sales$USPrice))
 
 ```{r}
 #first name
-lego_sales %>% select(first_name:last_name)%>%
-  unique()%>%
-  group_by(first_name)%>%
-  summarize(number = n())%>%
-  filter(number == max(number))
+lego_sales %>% 
+  
+  select(first_name:last_name) %>%
+  unique() %>%
+  group_by(first_name) %>%
+  summarize(number = n()) %>%
+  filter(number == max(number)) %>%
+  kable()
 
 #last name
-lego_sales %>% select(first_name:last_name)%>%
-  unique()%>%
-  group_by(last_name)%>%
-  summarize(number = n())%>%
-  filter(number == max(number))
+lego_sales %>% 
+  
+  select(first_name:last_name) %>%
+  unique() %>%
+  group_by(last_name) %>%
+  summarize(number = n()) %>%
+  filter(number == max(number)) %>%
+  kable()
 
 ```
 
 The most common first names are Jacob and Michael, and the most common last names are Brown, Scott, Smith and Williams. We first pick names(first name/last name) from the data frame, make every name unique, and pick the first name/last name that appear the most times.
 
-
+<br/>
 
 2. What are the five most popular lego sets based on these data?
 
 ```{r}
-lego_sales%>%
+lego_sales %>%
   
-  select(Name,Quantity)%>%
-  group_by(Name)%>%
-  summarize(total = sum(Quantity))%>%
+  select(Name,Quantity) %>%
+  group_by(Name) %>%
+  summarize(total = sum(Quantity)) %>%
   arrange(desc(total)) %>%
-  filter(total >= 9)
+  filter(total >= total[5]) %>% 
+  kable()
 
 ```
 
 From the tibble above we can see the five most popular sets. We pick names of sets and quatities of sold sets from the data frame, and compare the total quantities of sold sets by set names. 
 
-
+<br/>
 
 3. Which five customers have spent the most money so far and how much have they spent?
 
 ```{r}
 lego_sales %>% 
+  
   mutate(receipts = Quantity*USPrice, full_name = paste(first_name,last_name)) %>% 
-  select(full_name,receipts)%>%
+  select(full_name,receipts) %>%
   group_by(full_name) %>% 
-  summarize(total_receipts = sum(receipts))%>%
-  arrange(desc(total_receipts))%>%
-  slice(1:5)
+  summarize(total_receipts = sum(receipts)) %>%
+  arrange(desc(total_receipts) ) %>%
+  filter(total_receipts >= unique(total_receipts)[5]) %>%
+  kable()
 ```
 
 The tibble above shows the five customers have spent the most money so far. To find which customers have spent the most money, we first calculate the total money each customer spent on lego and arrange them into a list in descending order by how much money they spend. The top 5 of the list will be the five customers who spent the most money so far.
 
-
+<br/>
 
 4. Which lego theme has made the most money for lego?
 
 ```{r}
 lego_sales %>% 
   mutate (receipts = Quantity*USPrice) %>% 
-  select(Theme,receipts)%>%
-  group_by(Theme)%>%
-  summarize(total = sum(receipts))%>%
-  filter(total == max(total))
+  select(Theme,receipts) %>%
+  group_by(Theme) %>%
+  summarize(total = sum(receipts)) %>%
+  filter(total == max(total)) %>%
+  kable()
 
 ```
 
 Star Wars made the most money for lego. We calculate the total money moade by each theme and rank them by the money they made.
 
-
+<br/>
 
 5. Do men or women buy more lego sets (per person) on average?
 
 ```{r}
 lego_sales %>%
-  select(gender,Quantity)%>%
+  select(gender,Quantity) %>%
   group_by(gender) %>% 
-  summarize(avg_sets = mean(Quantity))
+  summarize(avg_sets = mean(Quantity)) %>%
+  kable()
 
 ```
 
 Male buy more lego sets on average. We calculate the average money spent by gender and compare the two.
 
-
+<br/>
 
 6. What are the five most popular hobbies of lego purchasers?
 
 ```{r}
-t1 = lego_sales %>% select(hobbies) %>% unlist() %>% sort()
-t2 = sapply(unique(t1), function(x){sum(t1 == x)}) %>% sort(.,decreasing = TRUE)
-hobbies = t2[1:5]
-hobbies
+t1 = lego_sales %>% 
+  select(hobbies) %>% 
+  unlist() %>% 
+  sort()
 
+t2 = sapply(unique(t1), function(x){sum(t1 == x)}) %>% 
+  sort(.,decreasing = TRUE)
+
+hobbies = t2[t2 >= t2[5]] %>% 
+  as.data.frame() %>%
+  kable(.,col.names = c(""))
+
+hobbies
 ```
 
 We unlist the variables in column hobbies and count the number of appearance for each hobby. From the result above we can see the five most popular hobbies of lego purchasers.
 
-
+<br/>
 
 7. How many total pieces have been purchased from lego by these customers?
 
@@ -183,24 +204,26 @@ We unlist the variables in column hobbies and count the number of appearance for
 lego_sales %>% 
   mutate(t_pieces = Quantity*Pieces) %>% 
   select(t_pieces) %>% 
-  summarize(total = sum(na.omit(t_pieces)))
+  summarize(total = sum(na.omit(t_pieces))) %>%
+  kable()
 
 ```
 
 To calculate the total pieces, we first caculate the total pieces for each customer, then calculate the sum of total pieces for each customer.
 
-
+<br/>
 
 8. Which area code has spent the most money on legos?
 
 ```{r}
 lego_sales %>% 
   mutate(area_code = substr(phone_number,1,3), receipts = USPrice*Quantity) %>% 
-  select(area_code,receipts)%>%
+  select(area_code,receipts) %>%
   group_by(area_code) %>%
   summarize(total_area = sum(receipts)) %>% 
   filter(!is.na(area_code)) %>% 
-  filter(total_area == max(total_area))
+  filter(total_area == max(total_area)) %>%
+  kable()
 
 ```
 
