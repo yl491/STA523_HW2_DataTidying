@@ -1,10 +1,15 @@
+---
+output:
+  pdf_document: default
+  html_document: default
+---
 Homework 2 - [Team 09]
 ========================================================
 
 ### Task 0 - Load the data
 
 ```{r message = FALSE}
-install.packages("repurrrsive")
+#install.packages("repurrrsive")
 library(dplyr)
 library(purrr)
 library(tibble)
