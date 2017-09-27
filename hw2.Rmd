@@ -21,12 +21,11 @@ load("lego_sales.RData")
 
 ### Task 1 - Tidying the data
 
-Write up: 
+Write up: \
 1. We first create a dataframe[D] that contains all customers' information (excluding purchases-related ones). \
-2. For each customer, we extract out the length of purchases, and sum thoses lengths up to be the number of rows in the final dataset[NUM_PURCHASES]. We then create a matrix[FINAL] that replicates each row of [D] with #s of duplicated purchases.\
-3. In dealing with duplicate purchases, we choose to put each purchase into a separate row. 
-We create a matrix[HALF2] with [NUM_PURCHASES] as #s of row, the sum of purchases as #s of column. We loop through each customer's purchases to extract information and put those information into a row in M1.\
-4. We combine [FINAL] and [HALF2], and get the clean dataset.\
+2. Our objective is to create a dataframe where each row corresponds to a particular transaction. Therefore, we determine the number of purchases[NUM_PURCHASES] made by each customer. We then create a matrix[FINAL] that replicates each row of [D] according to the number of purchases made by each customer.\
+3. We then proceed with adding the data for each purchase. We create a matrix[HALF2] with the total number of purchases [NUM_PURCHASES] as the number of rows, and the maximal number of data entries contained in each transaction as the number of columns. We note that each transaction contains 10 entries for all customers, yet we include this step to make the code more robust. We then loop through each customer's purchases to extract information and put that information into each row of [HALF2].\
+4. We combine [FINAL] and [HALF2], and get the clean dataset. We also coerce certain variable types to facilitate the analysis in part 2.\
 
 ```{r}
 list_cols = map(sales, ~ map_int(., length) )  %>% 
@@ -119,7 +118,7 @@ lego_sales %>%
 
 ```
 
-From the tibble above we can see the five most popular sets. We pick names of sets and quatities of sold sets from the data frame, and compare the total quantities of sold sets by set names. 
+From the table above we can see the five most popular sets. We pick names of sets and quatities of sold sets from the data frame, and compare the total quantities of sold sets by set names.
 
 <br/>
 
@@ -137,7 +136,7 @@ lego_sales %>%
   kable()
 ```
 
-The tibble above shows the five customers have spent the most money so far. To find which customers have spent the most money, we first calculate the total money each customer spent on lego and arrange them into a list in descending order by how much money they spend. The top 5 of the list will be the five customers who spent the most money so far.
+The table above shows the five customers have spent the most money so far. To find which customers have spent the most money, we first calculate the total money each customer spent on lego and arrange them into a list in descending order by how much money they spend. The top 5 of the list will be the five customers who spent the most money so far.
 
 <br/>
 
@@ -169,7 +168,7 @@ lego_sales %>%
 
 ```
 
-Male buy more lego sets on average. We calculate the average money spent by gender and compare the two.
+Men buy more lego sets per person on average. We calculate the average money spent by gender and compare the two.
 
 <br/>
 
@@ -195,7 +194,7 @@ hobbies = t2[t2 >= t2[5]] %>%
 hobbies
 ```
 
-We unlist the variables in column hobbies and count the number of appearance for each hobby. From the result above we can see the five most popular hobbies of lego purchasers.
+We unlist the variables in column hobbies and count the number of times each hobby appears. From the result above we can see the five most popular hobbies of lego purchasers.
 
 <br/>
 
@@ -211,7 +210,7 @@ lego_sales %>%
 
 ```
 
-To calculate the total pieces, we first caculate the total pieces for each customer, then calculate the sum of total pieces for each customer.
+To calculate the total pieces, we first caculate the total pieces for each customer, then calculate the sum of total pieces for each customer, omitting observations that have missing values.
 
 <br/>
 
