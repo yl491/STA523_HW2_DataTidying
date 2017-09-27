@@ -3,7 +3,7 @@ output:
   pdf_document: default
   html_document: default
 ---
-Homework 2 - [Team 09]
+Homework 2 - Team 09
 ========================================================
 
 ### Task 0 - Load the data
@@ -86,7 +86,7 @@ lego_sales %>%
   group_by(first_name) %>%
   summarize(number = n()) %>%
   filter(number == max(number)) %>%
-  kable()
+  kable(., col.names = c("First Name", "No."))
 
 #last name
 lego_sales %>% 
@@ -96,7 +96,7 @@ lego_sales %>%
   group_by(last_name) %>%
   summarize(number = n()) %>%
   filter(number == max(number)) %>%
-  kable()
+  kable(., col.names = c("Last Name", "No."))
 
 ```
 
@@ -114,11 +114,11 @@ lego_sales %>%
   summarize(total = sum(Quantity)) %>%
   arrange(desc(total)) %>%
   filter(total >= total[5]) %>% 
-  kable()
+  kable(., col.names = c("Set Name", "No."))
 
 ```
 
-From the table above we can see the five most popular sets. We pick names of sets and quatities of sold sets from the data frame, and compare the total quantities of sold sets by set names.
+From the table above we can see the five most popular sets. We use a standard competition ranking, and thus include all sets that are tied for third with 9 sales. We pick names of sets and quatities of sold sets from the data frame, and compare the total quantities of sold sets by set names.
 
 <br/>
 
@@ -133,7 +133,7 @@ lego_sales %>%
   summarize(total_receipts = sum(receipts)) %>%
   arrange(desc(total_receipts) ) %>%
   filter(total_receipts >= unique(total_receipts)[5]) %>%
-  kable()
+  kable(., col.names = c("Name", "Total Spent"))
 ```
 
 The table above shows the five customers have spent the most money so far. To find which customers have spent the most money, we first calculate the total money each customer spent on lego and arrange them into a list in descending order by how much money they spend. The top 5 of the list will be the five customers who spent the most money so far.
@@ -149,7 +149,7 @@ lego_sales %>%
   group_by(Theme) %>%
   summarize(total = sum(receipts)) %>%
   filter(total == max(total)) %>%
-  kable()
+  kable(., col.names = c("Theme", "Receipts"))
 
 ```
 
@@ -164,7 +164,7 @@ lego_sales %>%
   select(gender,Quantity) %>%
   group_by(gender) %>% 
   summarize(avg_sets = mean(Quantity)) %>%
-  kable()
+  kable(., col.names = c("Gender", "Avg. sets"))
 
 ```
 
@@ -189,12 +189,12 @@ t2 = sapply(unique(t1), function(x){sum(t1 == x)}) %>%
 
 hobbies = t2[t2 >= t2[5]] %>% 
   as.data.frame() %>%
-  kable(.,col.names = c(""))
+  kable(.,col.names = c("No."))
 
 hobbies
 ```
 
-We unlist the variables in column hobbies and count the number of times each hobby appears. From the result above we can see the five most popular hobbies of lego purchasers.
+We unlist hobbies after grouping by the names of customers and then count the number of times each hobby appears. From the result above we can see the most popular hobbies of lego purchasers. Again, using standard competition rankings, we include all hobbies that are tied for fifth with 4 occurences.
 
 <br/>
 
@@ -206,7 +206,7 @@ lego_sales %>%
   mutate(t_pieces = Quantity*Pieces) %>% 
   select(t_pieces) %>% 
   summarize(total = sum(na.omit(t_pieces))) %>%
-  kable()
+  kable(., col.names = c("Total Pieces"))
 
 ```
 
@@ -224,7 +224,7 @@ lego_sales %>%
   summarize(total_area = sum(receipts)) %>% 
   filter(!is.na(area_code)) %>% 
   filter(total_area == max(total_area)) %>%
-  kable()
+  kable(., col.names = c("Area Code", "Total Spent"))
 
 ```
 
